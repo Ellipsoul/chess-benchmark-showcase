@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "showcase-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "/Users/aronteh/Desktop/Coding_Adventures/chess-benchmark-showcase",
+      "port": 3000
+    }
+  ]
+}
