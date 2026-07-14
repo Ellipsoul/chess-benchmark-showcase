@@ -11,21 +11,24 @@ export function LazyMount({ children, id, minHeight = 600, eager = false }: {
   eager?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(eager);
+  const [visible, setVisible] = useState(false);
+  // Derived, not initial-state: `eager` can flip to true after mount (TOC click on a
+  // section that is still a placeholder), and must take effect immediately.
+  const show = visible || eager;
 
   useEffect(() => {
-    if (visible || !ref.current) return;
+    if (show || !ref.current) return;
     const observer = new IntersectionObserver(
       (entries) => entries[0].isIntersecting && setVisible(true),
       { rootMargin: "800px" },
     );
     observer.observe(ref.current);
     return () => observer.disconnect();
-  }, [visible]);
+  }, [show]);
 
   return (
-    <div ref={ref} id={id} className="scroll-mt-4" style={visible ? undefined : { minHeight }}>
-      {visible ? children : null}
+    <div ref={ref} id={id} className="scroll-mt-4" style={show ? undefined : { minHeight }}>
+      {show ? children : null}
     </div>
   );
 }

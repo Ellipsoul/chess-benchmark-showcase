@@ -50,7 +50,11 @@ export function PositionSection({ task, runs, preselectRun }: {
   runs: RunSummary[];
   preselectRun?: string;
 }) {
-  const [selectedRun, setSelectedRun] = useState<string | null>(preselectRun ?? null);
+  // Derived, not seeded: on static export useSearchParams can resolve after the
+  // first data render, so ?run= preselection must keep applying until the user
+  // makes their own selection (undefined = untouched).
+  const [userSelected, setUserSelected] = useState<string | null | undefined>(undefined);
+  const selectedRun = userSelected === undefined ? (preselectRun ?? null) : userSelected;
   const [hoveredRun, setHoveredRun] = useState<string | null>(null);
   const [showCorrect, setShowCorrect] = useState(true);
   const [moveIndex, setMoveIndex] = useState(task.input_moves.length); // state-tracking: start at the final position
@@ -173,7 +177,7 @@ export function PositionSection({ task, runs, preselectRun }: {
               result={result}
               run={runs.find((run) => run.slug === result.run)!}
               selected={selectedRun === result.run}
-              onSelect={() => setSelectedRun(selectedRun === result.run ? null : result.run)}
+              onSelect={() => setUserSelected(selectedRun === result.run ? null : result.run)}
               onHover={setHoveredRun}
             />
           ))}

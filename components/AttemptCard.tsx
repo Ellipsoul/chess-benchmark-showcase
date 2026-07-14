@@ -37,8 +37,8 @@ export function AttemptCard({ taskId, result, run, selected, onSelect, onHover }
       onMouseLeave={() => onHover(null)}
       onClick={onSelect}
       className={cn(
-        "cursor-pointer gap-1 rounded-lg px-2.5 py-2 shadow-none transition-colors hover:border-ring",
-        selected && "border-ring ring-1 ring-ring",
+        "cursor-pointer gap-1 rounded-lg px-2.5 py-2 shadow-none transition-shadow hover:ring-foreground/30",
+        selected && "ring-2 ring-primary/70 hover:ring-primary/70",
       )}
     >
       <div className="flex flex-wrap items-center gap-1.5">

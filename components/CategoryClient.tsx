@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import { getCategory, getIndex } from "@/lib/data";
 import { CATEGORY_ORDER } from "@/lib/outcome";
@@ -21,9 +20,11 @@ function scrollToSection(id: string) {
     if (!el) return;
     const top = el.getBoundingClientRect().top;
     if (Math.abs(top) > 6) el.scrollIntoView({ block: "start" });
-    if (performance.now() - started < 1600) requestAnimationFrame(step);
+    // setTimeout (not rAF): must keep firing in background tabs so a deep link
+    // opened in a new tab is already positioned when the user switches to it.
+    if (performance.now() - started < 1600) setTimeout(step, 120);
   };
-  requestAnimationFrame(step);
+  step();
 }
 
 function TocLinks({ tasks, onNavigate }: {
@@ -53,7 +54,11 @@ export function CategoryClient({ slug }: { slug: string }) {
   const [eagerTask, setEagerTask] = useState<string | null>(null);
   const [tocOpen, setTocOpen] = useState(false);
   const [initialHash] = useState(() => (typeof window === "undefined" ? "" : window.location.hash.slice(1)));
-  const preselectRun = useSearchParams().get("run") ?? undefined;
+  // Read ?run= from location directly: on the static export useSearchParams proved
+  // unreliable after hydration, and this page is fully client-rendered anyway.
+  const [preselectRun] = useState(() =>
+    typeof window === "undefined" ? undefined : new URLSearchParams(window.location.search).get("run") ?? undefined,
+  );
 
   useEffect(() => {
     Promise.all([getCategory(slug), getIndex()]).then(([category, idx]) => {
