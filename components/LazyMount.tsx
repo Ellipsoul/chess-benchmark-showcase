@@ -2,8 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 
-export function LazyMount({ children, minHeight = 600, eager = false }: {
+export function LazyMount({ children, id, minHeight = 600, eager = false }: {
   children: React.ReactNode;
+  /** Anchor id lives on this always-rendered wrapper, so hash/TOC navigation can
+   *  target sections whose content has not mounted yet. */
+  id?: string;
   minHeight?: number;
   eager?: boolean;
 }) {
@@ -20,5 +23,9 @@ export function LazyMount({ children, minHeight = 600, eager = false }: {
     return () => observer.disconnect();
   }, [visible]);
 
-  return <div ref={ref} style={visible ? undefined : { minHeight }}>{visible ? children : null}</div>;
+  return (
+    <div ref={ref} id={id} className="scroll-mt-4" style={visible ? undefined : { minHeight }}>
+      {visible ? children : null}
+    </div>
+  );
 }

@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { getCategory, getIndex } from "@/lib/data";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { CATEGORY_ORDER, OUTCOME_META } from "@/lib/outcome";
 import type { IndexData, Outcome, RunSummary } from "@/lib/types";
 
@@ -53,10 +56,10 @@ export function ModelClient({ slug }: { slug: string }) {
       </div>
       <div className="mt-6 flex gap-2 text-xs">
         {(["all", "correct", "wrong", "illegal", "capped", "format_error"] as const).map((option) => (
-          <button key={option} type="button" onClick={() => setFilter(option)}
-                  className={`rounded border px-2 py-1 ${filter === option ? "border-stone-700 dark:border-stone-300 font-medium" : "border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400"}`}>
+          <Button key={option} variant={filter === option ? "secondary" : "outline"} size="sm"
+                  className="h-6 px-2 text-xs" onClick={() => setFilter(option)}>
             {option === "all" ? "all" : OUTCOME_META[option].label.toLowerCase()}
-          </button>
+          </Button>
         ))}
       </div>
       <ul className="mt-3 divide-y divide-stone-100 dark:divide-stone-800 text-sm">
@@ -65,7 +68,7 @@ export function ModelClient({ slug }: { slug: string }) {
             <a className="hover:underline" href={`/category/${attempt.category_slug}?run=${slug}#${attempt.task_id}`}>{attempt.task_type}</a>
             <span className="flex items-center gap-2">
               <span className="font-mono text-xs text-stone-500 dark:text-stone-400">{attempt.extracted ?? "—"}</span>
-              <span className={`rounded px-1.5 py-0.5 text-xs ${OUTCOME_META[attempt.outcome].badgeClass}`}>{OUTCOME_META[attempt.outcome].label}</span>
+              <Badge className={cn("h-5 rounded px-1.5 text-xs", OUTCOME_META[attempt.outcome].badgeClass)}>{OUTCOME_META[attempt.outcome].label}</Badge>
             </span>
           </li>
         ))}

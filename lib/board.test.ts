@@ -39,4 +39,25 @@ describe("board helpers", () => {
     expect(merged.arrows).toHaveLength(1);
     expect(merged.squareStyles.d4).toBeDefined();
   });
+  it("mergeOverlays dedupes identical arrows, first overlay wins (correct-answer green beats model overlay)", () => {
+    // model answered the same move as the correct answer -> only one arrow, in the first color
+    const correct = primitivesToOverlay({ type: "moves", arrows: [{ from: "d2", to: "b3" }] }, "#16a34a");
+    const model = primitivesToOverlay({ type: "moves", arrows: [{ from: "d2", to: "b3" }] }, "#dc2626");
+    const merged = mergeOverlays(correct, model);
+    expect(merged.arrows).toHaveLength(1);
+    expect(merged.arrows[0].color).toBe("#16a34a");
+  });
+  it("mergeOverlays keeps the first squareStyle for a square (correct highlight beats model highlight)", () => {
+    const correct = primitivesToOverlay({ type: "squares", squares: ["b3"] }, "#16a34a");
+    const model = primitivesToOverlay({ type: "squares", squares: ["b3"] }, "#dc2626");
+    const merged = mergeOverlays(correct, model);
+    expect(merged.squareStyles.b3.backgroundColor).toContain("22, 163, 74"); // 0x16a34a as rgb
+  });
+  it("primitivesToOverlay dedupes repeated arrows within one answer", () => {
+    const overlay = primitivesToOverlay(
+      { type: "moves", arrows: [{ from: "e2", to: "e4" }, { from: "e2", to: "e4" }] },
+      "#111111",
+    );
+    expect(overlay.arrows).toHaveLength(1);
+  });
 });

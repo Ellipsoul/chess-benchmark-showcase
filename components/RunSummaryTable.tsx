@@ -1,32 +1,49 @@
 "use client";
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import type { RunSummary } from "@/lib/types";
 
 export function RunSummaryTable({ runs }: { runs: RunSummary[] }) {
   const sorted = [...runs].sort((a, b) => b.n_correct - a.n_correct);
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full text-sm">
-        <thead>
-          <tr className="border-b text-left text-xs uppercase tracking-wide text-stone-500 dark:text-stone-400">
-            <th className="py-2 pr-4">Model</th><th className="pr-4">Correct</th><th className="pr-4">Capped</th>
-            <th className="pr-4">Illegal</th><th className="pr-4">Avg tokens</th><th className="pr-4">Cost</th><th>Traces</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Model</TableHead>
+            <TableHead>Correct</TableHead>
+            <TableHead>Capped</TableHead>
+            <TableHead>Illegal</TableHead>
+            <TableHead>Avg tokens</TableHead>
+            <TableHead>Cost</TableHead>
+            <TableHead>Traces</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {sorted.map((run) => (
-            <tr key={run.slug} className="border-b border-stone-100 dark:border-stone-800">
-              <td className="py-2 pr-4"><a className="font-medium hover:underline" href={`/model/${run.slug}`}>{run.display_name}</a></td>
-              <td className="pr-4 font-mono">{run.n_correct}/{run.n_results}</td>
-              <td className="pr-4 font-mono">{run.n_capped || "—"}</td>
-              <td className="pr-4 font-mono">{run.n_illegal || "—"}</td>
-              <td className="pr-4 font-mono">{run.avg_completion_tokens?.toLocaleString() ?? "—"}</td>
-              <td className="pr-4 font-mono">{run.total_cost_usd != null ? `$${run.total_cost_usd.toFixed(2)}` : "n/a"}</td>
-              <td className="text-xs text-stone-500 dark:text-stone-400">{Object.entries(run.thinking_sources).map(([k, v]) => `${k}×${v}`).join(" ")}</td>
-            </tr>
+            <TableRow key={run.slug}>
+              <TableCell>
+                <a className="font-medium hover:underline" href={`/model/${run.slug}`}>{run.display_name}</a>
+              </TableCell>
+              <TableCell className="font-mono">{run.n_correct}/{run.n_results}</TableCell>
+              <TableCell className="font-mono">{run.n_capped || "—"}</TableCell>
+              <TableCell className="font-mono">{run.n_illegal || "—"}</TableCell>
+              <TableCell className="font-mono">{run.avg_completion_tokens?.toLocaleString() ?? "—"}</TableCell>
+              <TableCell className="font-mono">{run.total_cost_usd != null ? `$${run.total_cost_usd.toFixed(2)}` : "n/a"}</TableCell>
+              <TableCell className="text-xs text-muted-foreground">
+                {Object.entries(run.thinking_sources).map(([k, v]) => `${k}×${v}`).join(" ")}
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }

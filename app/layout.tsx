@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Literata } from "next/font/google";
 import Link from "next/link";
+import { MobileNav } from "@/components/MobileNav";
+import { NAV_LINKS } from "@/lib/nav";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -36,8 +38,6 @@ function BoardGlyph() {
   );
 }
 
-const navLink = "text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100";
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -49,22 +49,29 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${literata.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <header className="border-b border-stone-200 dark:border-stone-800">
-          <nav className="mx-auto flex max-w-6xl items-center gap-5 overflow-x-auto px-4 py-3 text-sm whitespace-nowrap">
+        <header className="border-b">
+          <div className="mx-auto flex max-w-7xl items-center gap-5 px-4 py-3 text-sm">
             <Link href="/" className="flex items-center gap-2 font-semibold">
               <BoardGlyph />
               ChessQA Explorer
             </Link>
-            <Link href="/category/structural" className={navLink}>Structural</Link>
-            <Link href="/category/motifs" className={navLink}>Motifs</Link>
-            <Link href="/category/short-tactics" className={navLink}>Short Tactics</Link>
-            <Link href="/category/position-judgement" className={navLink}>Position Judgement</Link>
-            <Link href="/category/semantic" className={navLink}>Semantic</Link>
-            <Link href="/about" className={`ml-auto ${navLink}`}>About</Link>
-          </nav>
+            <nav className="hidden items-center gap-5 md:flex">
+              {NAV_LINKS.slice(0, -1).map((link) => (
+                <Link key={link.href} href={link.href} className="text-foreground/75 hover:text-foreground">
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+            <div className="ml-auto flex items-center">
+              <Link href="/about" className="hidden text-foreground/75 hover:text-foreground md:block">
+                About
+              </Link>
+              <MobileNav />
+            </div>
+          </div>
         </header>
         <div className="flex-1">{children}</div>
-        <footer className="mt-16 border-t border-stone-200 py-6 text-center text-xs text-stone-500 dark:border-stone-800 dark:text-stone-400">
+        <footer className="mt-16 border-t py-6 text-center text-xs text-muted-foreground">
           Benchmark: <a className="underline" href="https://github.com/CSSLab/chessqa-benchmark">ChessQA</a> by CSSLab,
           University of Toronto (<a className="underline" href="https://arxiv.org/abs/2510.23948">arXiv:2510.23948</a>, MIT).
           Harness &amp; results: <a className="underline" href="https://github.com/Ellipsoul/chessqa-benchmark">Ellipsoul/chessqa-benchmark</a>.

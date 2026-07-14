@@ -3,40 +3,41 @@
 import { useEffect, useMemo, useState } from "react";
 import { Board } from "./Board";
 import { AttemptCard } from "./AttemptCard";
-import { CORRECT_COLOR, MODEL_COLOR, diffOverlay, fenAfterMoves, mergeOverlays, primitivesToOverlay, sideToMove } from "@/lib/board";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { CORRECT_COLOR, WRONG_COLOR, diffOverlay, fenAfterMoves, mergeOverlays, primitivesToOverlay, sideToMove } from "@/lib/board";
 import { getTraces } from "@/lib/data";
 import type { RunSummary, TaskDetail } from "@/lib/types";
 
-function ChoicePicks({ correct, picks }: { correct: string; picks: { name: string; letter: string }[] }) {
-  return (
-    <div className="flex gap-1 text-xs">
-      {["A", "B", "C", "D"].map((letter) => {
-        const names = picks.filter((p) => p.letter === letter).map((p) => p.name);
-        return (
-          <div key={letter}
-               className={`flex-1 rounded border p-1 text-center ${letter === correct ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/50" : "border-stone-200 dark:border-stone-800"}`}
-               title={names.join(", ")}>
-            <div className="font-mono">{letter}</div>
-            <div className="text-stone-500 dark:text-stone-400">{names.length > 0 ? `${names.length} model${names.length > 1 ? "s" : ""}` : "—"}</div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
+const EMPTY_OVERLAY = { arrows: [], squareStyles: {} };
 
-function EvalScale({ correct, picks }: { correct: number; picks: { name: string; value: number }[] }) {
-  const buckets = [-400, -200, 0, 200, 400];
+function ConsensusRow({ options, correct, picks }: {
+  options: string[];
+  correct: string;
+  picks: { name: string; value: string }[];
+}) {
   return (
     <div className="flex gap-1 text-xs">
-      {buckets.map((bucket) => {
-        const names = picks.filter((p) => p.value === bucket).map((p) => p.name);
+      {options.map((option) => {
+        const names = picks.filter((p) => p.value === option).map((p) => p.name);
         return (
-          <div key={bucket}
-               className={`flex-1 rounded border p-1 text-center ${bucket === correct ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/50" : "border-stone-200 dark:border-stone-800"}`}
-               title={names.join(", ")}>
-            <div className="font-mono">{bucket > 0 ? `+${bucket}` : bucket}</div>
-            <div className="text-stone-500 dark:text-stone-400">{names.length > 0 ? `${names.length} model${names.length > 1 ? "s" : ""}` : "—"}</div>
+          <div
+            key={option}
+            className={`flex-1 rounded border p-1 text-center ${option === correct ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/50" : "border-border"}`}
+            title={names.join(", ")}
+          >
+            <div className="font-mono">{option}</div>
+            <div className="text-muted-foreground">{names.length > 0 ? `${names.length} model${names.length > 1 ? "s" : ""}` : "—"}</div>
           </div>
         );
       })}
@@ -50,21 +51,24 @@ export function PositionSection({ task, runs, preselectRun }: {
   preselectRun?: string;
 }) {
   const [selectedRun, setSelectedRun] = useState<string | null>(preselectRun ?? null);
+  const [hoveredRun, setHoveredRun] = useState<string | null>(null);
   const [showCorrect, setShowCorrect] = useState(true);
-  const [showPrompt, setShowPrompt] = useState(false);
   const [moveIndex, setMoveIndex] = useState(task.input_moves.length); // state-tracking: start at the final position
 
   const displayFen = task.input_moves.length > 0 ? fenAfterMoves(task.input_fen, task.input_moves, moveIndex) : task.input_fen;
   const orientation = sideToMove(task.input_fen);
-  const selected = task.results.find((r) => r.run === selectedRun);
+  const activeRun = hoveredRun ?? selectedRun;
+  const active = task.results.find((r) => r.run === activeRun);
 
+  // Correct answer is always green; the active model's answer is green when it was
+  // correct, red otherwise. mergeOverlays is first-wins, so green keeps priority
+  // when a model played exactly the correct move.
   const overlay = useMemo(() => mergeOverlays(
-    showCorrect ? primitivesToOverlay(task.correct_primitives, CORRECT_COLOR) : { arrows: [], squareStyles: {} },
-    selected ? primitivesToOverlay(selected.primitives, MODEL_COLOR) : { arrows: [], squareStyles: {} },
-  ), [showCorrect, selected, task.correct_primitives]);
+    showCorrect ? primitivesToOverlay(task.correct_primitives, CORRECT_COLOR) : EMPTY_OVERLAY,
+    active ? primitivesToOverlay(active.primitives, active.outcome === "correct" ? CORRECT_COLOR : WRONG_COLOR) : EMPTY_OVERLAY,
+  ), [showCorrect, active, task.correct_primitives]);
 
-  // Speculative prefetch (spec: traces load during idle time for in-view positions).
-  // LazyMount only mounts sections near the viewport, so mount ≈ in view.
+  // Speculative prefetch (traces load during idle time for mounted, i.e. near-view, sections).
   useEffect(() => {
     const prefetch = () => { getTraces(task.task_id).catch(() => undefined); };
     if (typeof window.requestIdleCallback === "function") {
@@ -82,63 +86,97 @@ export function PositionSection({ task, runs, preselectRun }: {
   const displayName = (slug: string) => runs.find((run) => run.slug === slug)?.display_name ?? slug;
   const evalPicks = task.results
     .filter((r) => r.primitives.type === "eval")
-    .map((r) => ({ name: displayName(r.run), value: (r.primitives as { value: number }).value }));
+    .map((r) => ({ name: displayName(r.run), value: String((r.primitives as { value: number }).value) }));
   const choicePicks = task.results
     .filter((r) => r.primitives.type === "choice")
-    .map((r) => ({ name: displayName(r.run), letter: (r.primitives as { letter: string }).letter }));
+    .map((r) => ({ name: displayName(r.run), value: (r.primitives as { letter: string }).letter }));
+  const question = task.question.replace("CONTEXT_PLACEHOLDER", "").split("Analyze step by step")[0].trim();
 
   return (
-    <section id={task.task_id} className="scroll-mt-20 border-t border-stone-200 dark:border-stone-800 py-8">
-      <h3 className="font-mono text-sm text-stone-500 dark:text-stone-400">{task.task_type}</h3>
-      <div className="mt-3 grid gap-6 lg:grid-cols-[minmax(280px,420px)_1fr]">
-        <div>
+    <section className="border-t py-6">
+      <h3 className="font-mono text-sm text-muted-foreground">{task.task_type}</h3>
+      <div className="mt-3 grid gap-6 lg:grid-cols-[minmax(300px,400px)_1fr]">
+        {/* Left column: board + prompt + metadata */}
+        <div className="min-w-0">
           <Board fen={displayFen} orientation={orientation} overlay={overlay} />
           {task.input_moves.length > 0 && (
             <div className="mt-2 flex items-center gap-2 text-sm">
-              <button type="button" className="rounded border px-2" disabled={moveIndex === 0} onClick={() => setMoveIndex(moveIndex - 1)}>‹</button>
-              <span className="font-mono">{moveIndex}/{task.input_moves.length} moves</span>
-              <button type="button" className="rounded border px-2" disabled={moveIndex === task.input_moves.length} onClick={() => setMoveIndex(moveIndex + 1)}>›</button>
+              <Button variant="outline" size="sm" className="h-6 w-6 p-0" disabled={moveIndex === 0} onClick={() => setMoveIndex(moveIndex - 1)}>‹</Button>
+              <span className="font-mono text-xs">{moveIndex}/{task.input_moves.length} moves</span>
+              <Button variant="outline" size="sm" className="h-6 w-6 p-0" disabled={moveIndex === task.input_moves.length} onClick={() => setMoveIndex(moveIndex + 1)}>›</Button>
             </div>
           )}
-          {selected?.primitives.type === "fen" && (
+          {active?.primitives.type === "fen" && (
             <div className="mt-3">
-              <p className="mb-1 text-xs font-medium text-stone-600 dark:text-stone-400">What this model imagined (differences in red):</p>
-              <Board fen={selected.primitives.fen} orientation={orientation} overlay={diffOverlay(selected.primitives.diff_squares)} maxWidth={300} />
+              <p className="mb-1 text-xs font-medium text-muted-foreground">What this model imagined (differences in red):</p>
+              <Board fen={active.primitives.fen} orientation={orientation} overlay={diffOverlay(active.primitives.diff_squares)} maxWidth={300} />
             </div>
           )}
-          <label className="mt-2 flex items-center gap-1 text-xs text-stone-600 dark:text-stone-400">
-            <input type="checkbox" checked={showCorrect} onChange={(e) => setShowCorrect(e.target.checked)} />
+          <label className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Checkbox checked={showCorrect} onCheckedChange={(checked) => setShowCorrect(checked === true)} className="size-3.5" />
             show correct answer (green)
           </label>
-        </div>
-        <div>
-          <p className="whitespace-pre-wrap text-sm">{task.question.replace("CONTEXT_PLACEHOLDER", "").split("Analyze step by step")[0].trim()}</p>
-          <p className="mt-2 text-sm">Correct answer: <span className="font-mono font-semibold text-emerald-700 dark:text-emerald-400">{task.correct_answer}</span></p>
-          <button type="button" className="mt-1 text-xs underline decoration-dotted text-stone-500 dark:text-stone-400" onClick={() => setShowPrompt(!showPrompt)}>
-            {showPrompt ? "hide full prompt" : "show full prompt"}
-          </button>
-          {showPrompt && <pre className="mt-1 max-h-60 overflow-y-auto whitespace-pre-wrap rounded bg-stone-100 dark:bg-stone-900 p-2 font-mono text-xs">{task.resolved_prompt}</pre>}
-          <div className="mt-2 flex flex-wrap gap-3 text-xs text-stone-500 dark:text-stone-400">
-            {puzzleId && <a className="underline" href={`https://lichess.org/training/${puzzleId}`} target="_blank" rel="noreferrer">Lichess puzzle {puzzleId}</a>}
+
+          <p className="mt-3 whitespace-pre-wrap text-sm">{question}</p>
+          <p className="mt-2 text-sm">
+            Correct answer: <span className="font-mono font-semibold text-emerald-700 dark:text-emerald-400">{task.correct_answer}</span>
+          </p>
+          <Dialog>
+            <DialogTrigger
+              render={
+                <Button variant="outline" size="sm" className="mt-2 h-6 px-2 text-[11px]">
+                  View full prompt
+                </Button>
+              }
+            />
+            <DialogContent className="sm:max-w-3xl">
+              <DialogHeader>
+                <DialogTitle className="font-mono text-base">Full resolved prompt</DialogTitle>
+                <DialogDescription className="font-mono text-xs">{task.task_id}</DialogDescription>
+              </DialogHeader>
+              <ScrollArea className="max-h-[65vh] rounded-md border bg-muted/40">
+                <pre className="whitespace-pre-wrap break-words p-3 font-mono text-xs leading-relaxed">{task.resolved_prompt}</pre>
+              </ScrollArea>
+            </DialogContent>
+          </Dialog>
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+            {puzzleId && (
+              <a className="underline" href={`https://lichess.org/training/${puzzleId}`} target="_blank" rel="noreferrer">
+                Lichess puzzle {puzzleId}
+              </a>
+            )}
             {typeof meta.rating === "number" && <span>puzzle rating {meta.rating}</span>}
             {typeof meta.depth === "number" && <span>Stockfish depth {meta.depth}</span>}
-            {themes.map((theme) => <span key={theme} className="rounded bg-stone-100 dark:bg-stone-800 px-1.5">{theme}</span>)}
-          </div>
-          {bestLine && <p className="mt-1 font-mono text-xs text-stone-500 dark:text-stone-400">engine line: {bestLine}</p>}
-          {evalPicks.length > 0 && (
-            <div className="mt-3"><EvalScale correct={Number(task.correct_answer)} picks={evalPicks} /></div>
-          )}
-          {choicePicks.length > 0 && (
-            <div className="mt-3"><ChoicePicks correct={task.correct_answer.trim().toUpperCase()} picks={choicePicks} /></div>
-          )}
-          <div className="mt-4 grid gap-2 md:grid-cols-2">
-            {task.results.map((result) => (
-              <AttemptCard key={result.run} taskId={task.task_id} result={result}
-                           run={runs.find((run) => run.slug === result.run)!}
-                           selected={selectedRun === result.run}
-                           onSelect={() => setSelectedRun(selectedRun === result.run ? null : result.run)} />
+            {themes.map((theme) => (
+              <Badge key={theme} variant="secondary" className="h-4 rounded px-1 text-[10px] font-normal">{theme}</Badge>
             ))}
           </div>
+          {bestLine && <p className="mt-1 font-mono text-xs text-muted-foreground">engine line: {bestLine}</p>}
+          {evalPicks.length > 0 && (
+            <div className="mt-3">
+              <ConsensusRow options={["-400", "-200", "0", "200", "400"]} correct={String(Number(task.correct_answer))} picks={evalPicks} />
+            </div>
+          )}
+          {choicePicks.length > 0 && (
+            <div className="mt-3">
+              <ConsensusRow options={["A", "B", "C", "D"]} correct={task.correct_answer.trim().toUpperCase()} picks={choicePicks} />
+            </div>
+          )}
+        </div>
+
+        {/* Right column: one compact card per run; hovering previews that answer on the board */}
+        <div className="grid content-start gap-1.5 md:grid-cols-2">
+          {task.results.map((result) => (
+            <AttemptCard
+              key={result.run}
+              taskId={task.task_id}
+              result={result}
+              run={runs.find((run) => run.slug === result.run)!}
+              selected={selectedRun === result.run}
+              onSelect={() => setSelectedRun(selectedRun === result.run ? null : result.run)}
+              onHover={setHoveredRun}
+            />
+          ))}
         </div>
       </div>
     </section>
