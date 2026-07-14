@@ -3,15 +3,17 @@
 import { OUTCOME_META } from "@/lib/outcome";
 import type { IndexData } from "@/lib/types";
 
+// Cells sit on a dark "board wall" (stone-800 shows through the 1px gaps), which is
+// what guarantees the >=3:1 cell contrast in both themes — see lib/outcome.ts.
 export function Heatmap({ index }: { index: IndexData }) {
   return (
     <div className="overflow-x-auto">
-      <table className="border-separate border-spacing-px">
+      <table className="border-separate border-spacing-px rounded-lg bg-stone-800 p-1 dark:bg-stone-800">
         <thead>
           <tr>
-            <th className="sticky left-0 bg-white pr-2 text-left text-xs font-normal text-slate-500">model \ task</th>
+            <th className="sticky left-0 bg-stone-800 pr-2 text-left text-xs font-normal text-stone-300">model \ task</th>
             {index.tasks.map((task) => (
-              <th key={task.task_id} className="p-0 text-[9px] font-normal text-slate-400">
+              <th key={task.task_id} className="p-0 text-[9px] font-normal text-stone-400">
                 <div className="h-16 w-4 [writing-mode:vertical-rl]" title={task.task_type}>{task.task_type.slice(0, 22)}</div>
               </th>
             ))}
@@ -20,7 +22,7 @@ export function Heatmap({ index }: { index: IndexData }) {
         <tbody>
           {index.runs.map((run) => (
             <tr key={run.slug}>
-              <th className="sticky left-0 bg-white pr-2 text-left text-xs font-normal text-slate-600 whitespace-nowrap">{run.display_name}</th>
+              <th className="sticky left-0 bg-stone-800 pr-2 text-left text-xs font-normal text-stone-300 whitespace-nowrap">{run.display_name}</th>
               {index.tasks.map((task) => {
                 const outcome = task.outcomes[run.slug];
                 return (
@@ -35,9 +37,12 @@ export function Heatmap({ index }: { index: IndexData }) {
           ))}
         </tbody>
       </table>
-      <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-600">
+      <div className="mt-2 flex flex-wrap gap-3 text-xs text-stone-600 dark:text-stone-400">
         {Object.entries(OUTCOME_META).map(([key, meta]) => (
-          <span key={key} className="flex items-center gap-1"><span className={`inline-block h-3 w-3 ${meta.cellClass}`} />{meta.label}</span>
+          <span key={key} className="flex items-center gap-1">
+            <span className={`inline-block h-3.5 w-3.5 rounded-[2px] ring-2 ring-stone-800 ${meta.cellClass}`} />
+            {meta.label}
+          </span>
         ))}
       </div>
     </div>

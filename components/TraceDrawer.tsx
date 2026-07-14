@@ -32,19 +32,19 @@ export function TraceDrawer({ taskId, result }: { taskId: string; result: TaskRe
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="text-sm underline decoration-dotted text-slate-600 hover:text-slate-900"
+        className="text-sm underline decoration-dotted text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100"
       >
         {open ? "Hide thoughts" : `Show thoughts (${fidelity}, ${result.thinking_chars.toLocaleString()} chars)`}
       </button>
       {open && (
-        <div className="mt-2 rounded border border-slate-200 bg-slate-50 p-3 text-sm">
+        <div className="mt-2 rounded border border-stone-200 dark:border-stone-800 bg-stone-100 dark:bg-stone-900 p-3 text-sm">
           {result.outcome === "capped" && (
-            <p className="mb-2 rounded bg-amber-100 px-2 py-1 font-medium text-amber-900">
+            <p className="mb-2 rounded bg-amber-100 px-2 py-1 font-medium text-amber-900 dark:bg-amber-950 dark:text-amber-200">
               Hit the 32K token ceiling mid-thought — no answer was ever produced.
             </p>
           )}
-          {error && <p className="text-rose-700">Failed to load trace: {error}</p>}
-          {!trace && !error && <p className="text-slate-500">Loading…</p>}
+          {error && <p className="text-rose-700 dark:text-rose-400">Failed to load trace: {error}</p>}
+          {!trace && !error && <p className="text-stone-500 dark:text-stone-400">Loading…</p>}
           {trace && (
             <>
               <pre className="max-h-96 overflow-y-auto whitespace-pre-wrap break-words font-mono text-xs leading-relaxed">
@@ -52,7 +52,7 @@ export function TraceDrawer({ taskId, result }: { taskId: string; result: TaskRe
               </pre>
               {trace.response && (
                 <details className="mt-2">
-                  <summary className="cursor-pointer text-slate-600">Final response text</summary>
+                  <summary className="cursor-pointer text-stone-600 dark:text-stone-400">Final response text</summary>
                   <pre className="mt-1 max-h-60 overflow-y-auto whitespace-pre-wrap break-words font-mono text-xs">{trace.response}</pre>
                 </details>
               )}

@@ -10,7 +10,7 @@ export default function AboutPage() {
       <h1 className="text-2xl font-semibold">About</h1>
 
       <h2 className="mt-8 text-lg font-semibold">What ChessQA measures</h2>
-      <p className="mt-2 text-slate-700">
+      <p className="mt-2 text-stone-700 dark:text-stone-300">
         ChessQA is a 3,500-item benchmark from CSSLab at the University of Toronto
         (<a className="underline" href="https://arxiv.org/abs/2510.23948">arXiv:2510.23948</a>) that probes
         LLM chess understanding across five categories of ascending abstraction:
@@ -23,7 +23,7 @@ export default function AboutPage() {
       </p>
 
       <h2 className="mt-8 text-lg font-semibold">What this smoke campaign was</h2>
-      <p className="mt-2 text-slate-700">
+      <p className="mt-2 text-stone-700 dark:text-stone-300">
         In July 2026 we ran sixteen frontier-model configurations (fourteen distinct fleet configs plus two
         reused baselines) against a 50-task sample — exactly one position per task type, spanning all five
         categories. The point was to validate the harness, measure per-model cost and trace fidelity, and
@@ -33,7 +33,7 @@ export default function AboutPage() {
       </p>
 
       <h2 className="mt-8 text-lg font-semibold">How answers were scored</h2>
-      <p className="mt-2 text-slate-700">
+      <p className="mt-2 text-stone-700 dark:text-stone-300">
         Answers are extracted from the model&apos;s final <code className="font-mono text-sm">FINAL ANSWER:</code> line
         and scored by exact match (set match for multi-answer questions), following the paper&apos;s protocol.
         Outcomes shown here collapse the harness&apos;s error taxonomy: <strong>correct</strong>,
@@ -45,7 +45,7 @@ export default function AboutPage() {
       </p>
 
       <h2 className="mt-8 text-lg font-semibold">Thinking traces and fidelity</h2>
-      <p className="mt-2 text-slate-700">
+      <p className="mt-2 text-stone-700 dark:text-stone-300">
         The centerpiece of this site is the unedited reasoning stream behind each answer. Providers differ in
         what they return: <strong>full_text</strong> is the raw, unedited chain of thought
         (Gemini 3.x and the open-weight reasoners return this); <strong>summary</strong> is a
@@ -57,7 +57,7 @@ export default function AboutPage() {
       </p>
 
       <h2 className="mt-8 text-lg font-semibold">Roadmap</h2>
-      <p className="mt-2 text-slate-700">
+      <p className="mt-2 text-stone-700 dark:text-stone-300">
         Next: the full 3,500-task run with proper uncertainty quantification, then reasoning-trace root-cause
         analysis — mechanically verifying every calculated line in the thinking traces with python-chess
         (illegal-line rates, break depth, phantom pieces) plus a failure-mode taxonomy calibrated against
@@ -65,7 +65,7 @@ export default function AboutPage() {
       </p>
 
       <h2 className="mt-8 text-lg font-semibold">Attribution</h2>
-      <p className="mt-2 text-slate-700">
+      <p className="mt-2 text-stone-700 dark:text-stone-300">
         The ChessQA benchmark is by CSSLab, University of Toronto —
         upstream at <a className="underline" href="https://github.com/CSSLab/chessqa-benchmark">github.com/CSSLab/chessqa-benchmark</a> (MIT
         license). Our harness fork, results, and the exporter that produced this site&apos;s data live

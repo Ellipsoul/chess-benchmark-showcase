@@ -14,10 +14,10 @@ function ChoicePicks({ correct, picks }: { correct: string; picks: { name: strin
         const names = picks.filter((p) => p.letter === letter).map((p) => p.name);
         return (
           <div key={letter}
-               className={`flex-1 rounded border p-1 text-center ${letter === correct ? "border-emerald-500 bg-emerald-50" : "border-slate-200"}`}
+               className={`flex-1 rounded border p-1 text-center ${letter === correct ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/50" : "border-stone-200 dark:border-stone-800"}`}
                title={names.join(", ")}>
             <div className="font-mono">{letter}</div>
-            <div className="text-slate-500">{names.length > 0 ? `${names.length} model${names.length > 1 ? "s" : ""}` : "—"}</div>
+            <div className="text-stone-500 dark:text-stone-400">{names.length > 0 ? `${names.length} model${names.length > 1 ? "s" : ""}` : "—"}</div>
           </div>
         );
       })}
@@ -33,10 +33,10 @@ function EvalScale({ correct, picks }: { correct: number; picks: { name: string;
         const names = picks.filter((p) => p.value === bucket).map((p) => p.name);
         return (
           <div key={bucket}
-               className={`flex-1 rounded border p-1 text-center ${bucket === correct ? "border-emerald-500 bg-emerald-50" : "border-slate-200"}`}
+               className={`flex-1 rounded border p-1 text-center ${bucket === correct ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/50" : "border-stone-200 dark:border-stone-800"}`}
                title={names.join(", ")}>
             <div className="font-mono">{bucket > 0 ? `+${bucket}` : bucket}</div>
-            <div className="text-slate-500">{names.length > 0 ? `${names.length} model${names.length > 1 ? "s" : ""}` : "—"}</div>
+            <div className="text-stone-500 dark:text-stone-400">{names.length > 0 ? `${names.length} model${names.length > 1 ? "s" : ""}` : "—"}</div>
           </div>
         );
       })}
@@ -88,8 +88,8 @@ export function PositionSection({ task, runs, preselectRun }: {
     .map((r) => ({ name: displayName(r.run), letter: (r.primitives as { letter: string }).letter }));
 
   return (
-    <section id={task.task_id} className="scroll-mt-20 border-t border-slate-200 py-8">
-      <h3 className="font-mono text-sm text-slate-500">{task.task_type}</h3>
+    <section id={task.task_id} className="scroll-mt-20 border-t border-stone-200 dark:border-stone-800 py-8">
+      <h3 className="font-mono text-sm text-stone-500 dark:text-stone-400">{task.task_type}</h3>
       <div className="mt-3 grid gap-6 lg:grid-cols-[minmax(280px,420px)_1fr]">
         <div>
           <Board fen={displayFen} orientation={orientation} overlay={overlay} />
@@ -102,29 +102,29 @@ export function PositionSection({ task, runs, preselectRun }: {
           )}
           {selected?.primitives.type === "fen" && (
             <div className="mt-3">
-              <p className="mb-1 text-xs font-medium text-slate-600">What this model imagined (differences in red):</p>
+              <p className="mb-1 text-xs font-medium text-stone-600 dark:text-stone-400">What this model imagined (differences in red):</p>
               <Board fen={selected.primitives.fen} orientation={orientation} overlay={diffOverlay(selected.primitives.diff_squares)} maxWidth={300} />
             </div>
           )}
-          <label className="mt-2 flex items-center gap-1 text-xs text-slate-600">
+          <label className="mt-2 flex items-center gap-1 text-xs text-stone-600 dark:text-stone-400">
             <input type="checkbox" checked={showCorrect} onChange={(e) => setShowCorrect(e.target.checked)} />
             show correct answer (green)
           </label>
         </div>
         <div>
           <p className="whitespace-pre-wrap text-sm">{task.question.replace("CONTEXT_PLACEHOLDER", "").split("Analyze step by step")[0].trim()}</p>
-          <p className="mt-2 text-sm">Correct answer: <span className="font-mono font-semibold text-emerald-700">{task.correct_answer}</span></p>
-          <button type="button" className="mt-1 text-xs underline decoration-dotted text-slate-500" onClick={() => setShowPrompt(!showPrompt)}>
+          <p className="mt-2 text-sm">Correct answer: <span className="font-mono font-semibold text-emerald-700 dark:text-emerald-400">{task.correct_answer}</span></p>
+          <button type="button" className="mt-1 text-xs underline decoration-dotted text-stone-500 dark:text-stone-400" onClick={() => setShowPrompt(!showPrompt)}>
             {showPrompt ? "hide full prompt" : "show full prompt"}
           </button>
-          {showPrompt && <pre className="mt-1 max-h-60 overflow-y-auto whitespace-pre-wrap rounded bg-slate-50 p-2 font-mono text-xs">{task.resolved_prompt}</pre>}
-          <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-500">
+          {showPrompt && <pre className="mt-1 max-h-60 overflow-y-auto whitespace-pre-wrap rounded bg-stone-100 dark:bg-stone-900 p-2 font-mono text-xs">{task.resolved_prompt}</pre>}
+          <div className="mt-2 flex flex-wrap gap-3 text-xs text-stone-500 dark:text-stone-400">
             {puzzleId && <a className="underline" href={`https://lichess.org/training/${puzzleId}`} target="_blank" rel="noreferrer">Lichess puzzle {puzzleId}</a>}
             {typeof meta.rating === "number" && <span>puzzle rating {meta.rating}</span>}
             {typeof meta.depth === "number" && <span>Stockfish depth {meta.depth}</span>}
-            {themes.map((theme) => <span key={theme} className="rounded bg-slate-100 px-1.5">{theme}</span>)}
+            {themes.map((theme) => <span key={theme} className="rounded bg-stone-100 dark:bg-stone-800 px-1.5">{theme}</span>)}
           </div>
-          {bestLine && <p className="mt-1 font-mono text-xs text-slate-500">engine line: {bestLine}</p>}
+          {bestLine && <p className="mt-1 font-mono text-xs text-stone-500 dark:text-stone-400">engine line: {bestLine}</p>}
           {evalPicks.length > 0 && (
             <div className="mt-3"><EvalScale correct={Number(task.correct_answer)} picks={evalPicks} /></div>
           )}
