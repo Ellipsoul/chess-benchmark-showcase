@@ -6,23 +6,23 @@ import { getCategory, getIndex } from "@/lib/data";
 import { CATEGORY_ORDER } from "@/lib/outcome";
 import type { CategoryData, IndexData } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { CategorySkeleton } from "./Skeletons";
 import { LazyMount } from "./LazyMount";
 import { PositionSection } from "./PositionSection";
 
 const PREFIX_RE = /^(structural|motifs|short_tactics|position_judgement|semantic)_/;
 
-/** Scroll to a section and keep re-snapping briefly: sections above the target mount
- *  lazily and change height, which would otherwise leave the viewport stranded. */
-function scrollToSection(id: string) {
-  const started = performance.now();
+/** One scroll plus a few gentle corrections. This must never fight lazy mounting —
+ *  the caller eager-mounts every section above the target first, so heights are final
+ *  and the corrections are a no-op safety net (24px tolerance, 6 checks max), not a
+ *  re-snap loop. setTimeout (not rAF) so it also works in background tabs. */
+function settleScroll(id: string) {
+  let checks = 0;
   const step = () => {
     const el = document.getElementById(id);
     if (!el) return;
-    const top = el.getBoundingClientRect().top;
-    if (Math.abs(top) > 6) el.scrollIntoView({ block: "start" });
-    // setTimeout (not rAF): must keep firing in background tabs so a deep link
-    // opened in a new tab is already positioned when the user switches to it.
-    if (performance.now() - started < 1600) setTimeout(step, 120);
+    if (Math.abs(el.getBoundingClientRect().top) > 24) el.scrollIntoView({ block: "start" });
+    if (++checks < 6) setTimeout(step, 150);
   };
   step();
 }
@@ -51,7 +51,10 @@ function TocLinks({ tasks, onNavigate }: {
 export function CategoryClient({ slug }: { slug: string }) {
   const [data, setData] = useState<CategoryData | null>(null);
   const [index, setIndex] = useState<IndexData | null>(null);
-  const [eagerTask, setEagerTask] = useState<string | null>(null);
+  // Highest section index that must be mounted (monotonic). Navigation mounts every
+  // section up to the target BEFORE scrolling: placeholders above the target growing
+  // to full height mid-scroll is what caused the scroll to oscillate between puzzles.
+  const [eagerUpTo, setEagerUpTo] = useState(0);
   const [tocOpen, setTocOpen] = useState(false);
   const [initialHash] = useState(() => (typeof window === "undefined" ? "" : window.location.hash.slice(1)));
   // Read ?run= from location directly: on the static export useSearchParams proved
@@ -67,19 +70,27 @@ export function CategoryClient({ slug }: { slug: string }) {
     });
   }, [slug]);
 
-  // initialHash sections are already eager-mounted via the LazyMount prop below.
+  // Deep link: mount everything above the target, then scroll once layout is final.
+  // (setState deferred to a timeout — the lint rule forbids synchronous setState here.)
   useEffect(() => {
-    if (data && initialHash) scrollToSection(initialHash);
+    if (!data || !initialHash) return;
+    const targetIndex = data.tasks.findIndex((t) => t.task_id === initialHash);
+    const timeout = setTimeout(() => {
+      if (targetIndex >= 0) setEagerUpTo((prev) => Math.max(prev, targetIndex));
+      setTimeout(() => settleScroll(initialHash), 60);
+    }, 0);
+    return () => clearTimeout(timeout);
   }, [data, initialHash]);
 
   const navigate = (taskId: string) => {
-    setEagerTask(taskId); // mount the target section immediately
+    const targetIndex = data?.tasks.findIndex((t) => t.task_id === taskId) ?? -1;
+    if (targetIndex >= 0) setEagerUpTo((prev) => Math.max(prev, targetIndex));
     setTocOpen(false);
     history.replaceState(null, "", `#${taskId}`); // keep the URL shareable
-    scrollToSection(taskId);
+    setTimeout(() => settleScroll(taskId), 60); // one render for the eager mounts first
   };
 
-  if (!data || !index) return <p className="p-8 text-muted-foreground">Loading positions…</p>;
+  if (!data || !index) return <CategorySkeleton />;
   const categoryName = CATEGORY_ORDER.find((c) => c.slug === slug)?.name ?? data.category;
 
   return (
@@ -100,7 +111,7 @@ export function CategoryClient({ slug }: { slug: string }) {
 
         <main className="min-w-0">
           {data.tasks.map((task, i) => (
-            <LazyMount key={task.task_id} id={task.task_id} eager={task.task_id === initialHash || task.task_id === eagerTask || i === 0}>
+            <LazyMount key={task.task_id} id={task.task_id} eager={i <= eagerUpTo || task.task_id === initialHash}>
               <PositionSection task={task} runs={index.runs} preselectRun={preselectRun} />
             </LazyMount>
           ))}

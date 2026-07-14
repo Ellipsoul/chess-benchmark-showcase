@@ -6,6 +6,7 @@ import type { IndexData } from "@/lib/types";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heatmap } from "@/components/Heatmap";
 import { RunSummaryTable } from "@/components/RunSummaryTable";
+import { FleetTableSkeleton, HeatmapSkeleton } from "@/components/Skeletons";
 import { EXHIBITS } from "@/exhibits";
 
 export default function Home() {
@@ -20,21 +21,15 @@ export default function Home() {
         stream. Built on the <a className="underline" href="https://arxiv.org/abs/2510.23948">ChessQA benchmark</a> by
         CSSLab, University of Toronto. A browser for model behavior, not a leaderboard — counts, never percentages.
       </p>
-      {index ? (
-        <>
-          <h2 className="mt-8 text-xl font-semibold">Every attempt at a glance</h2>
-          <p className="mb-3 mt-1 text-sm text-muted-foreground">
-            Click any cell to jump to that model&apos;s answer and thoughts on that position.
-          </p>
-          <Heatmap index={index} />
-          <h2 className="mt-12 text-xl font-semibold">The fleet</h2>
-          <div className="mt-3">
-            <RunSummaryTable runs={index.runs} />
-          </div>
-        </>
-      ) : (
-        <p className="mt-10 text-muted-foreground">Loading results…</p>
-      )}
+      <h2 className="mt-8 text-xl font-semibold">Every attempt at a glance</h2>
+      <p className="mb-3 mt-1 text-sm text-muted-foreground">
+        Click any cell to jump to that model&apos;s answer and thoughts on that position.
+      </p>
+      {index ? <Heatmap index={index} /> : <HeatmapSkeleton />}
+      <h2 className="mt-12 text-xl font-semibold">The fleet</h2>
+      <div className="mt-3">
+        {index ? <RunSummaryTable runs={index.runs} /> : <FleetTableSkeleton />}
+      </div>
       <h2 className="mt-12 text-xl font-semibold">Exhibits</h2>
       <div className="mt-3 grid gap-4 md:grid-cols-2">
         {EXHIBITS.map((exhibit) => (

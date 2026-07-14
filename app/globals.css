@@ -2,9 +2,10 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* Dark mode is driven by the system preference (no in-app toggle), so the shadcn
-   variables live in a prefers-color-scheme block instead of a .dark class, and the
-   default media-based `dark:` variant is kept (no @custom-variant override). */
+/* The site ships dark-only (Aron's call, 2026-07-15): html carries a fixed `dark`
+   class and the `dark:` variant is class-driven. The light palette below stays in
+   the code so a toggle can be added later without re-doing the theme. */
+@custom-variant dark (&:is(.dark *));
 
 :root {
   /* Warm chess-paper neutrals (stone scale); dark theme is a warm near-black. */
@@ -42,8 +43,7 @@
   --sidebar-ring: oklch(0.709 0.01 56.259);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
+.dark {
     --background: oklch(0.178 0.005 56);
     --foreground: oklch(0.923 0.003 48.717);
     --card: oklch(0.216 0.006 56.043);
@@ -70,7 +70,6 @@
     --sidebar-accent-foreground: oklch(0.923 0.003 48.717);
     --sidebar-border: oklch(1 0 0 / 12%);
     --sidebar-ring: oklch(0.553 0.013 58.071);
-  }
 }
 
 @theme inline {

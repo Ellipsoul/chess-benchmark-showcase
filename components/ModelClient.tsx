@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getCategory, getIndex } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ModelSkeleton } from "@/components/Skeletons";
 import { cn } from "@/lib/utils";
 import { CATEGORY_ORDER, OUTCOME_META } from "@/lib/outcome";
 import type { IndexData, Outcome, RunSummary } from "@/lib/types";
@@ -31,7 +32,7 @@ export function ModelClient({ slug }: { slug: string }) {
     });
   }, [slug]);
 
-  if (!run || !index) return <p className="p-8 text-stone-500 dark:text-stone-400">Loading…</p>;
+  if (!run || !index) return <ModelSkeleton />;
   const shown = attempts.filter((a) => filter === "all" || a.outcome === filter);
   const byCategory = CATEGORY_ORDER.map(({ slug: cat, name }) => {
     const rows = attempts.filter((a) => a.category_slug === cat);
