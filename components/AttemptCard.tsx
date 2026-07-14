@@ -37,7 +37,7 @@ export function AttemptCard({ taskId, result, run, selected, onSelect, onHover }
       onMouseLeave={() => onHover(null)}
       onClick={onSelect}
       className={cn(
-        "cursor-pointer gap-0.5 rounded-lg px-2.5 py-1.5 shadow-none transition-shadow hover:ring-foreground/30",
+        "cursor-pointer gap-0.5 rounded-lg px-2.5 py-1 shadow-none transition-shadow hover:ring-foreground/30",
         selected && "ring-2 ring-primary/70 hover:ring-primary/70",
       )}
     >

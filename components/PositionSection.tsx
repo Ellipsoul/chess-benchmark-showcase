@@ -169,7 +169,7 @@ export function PositionSection({ task, runs, preselectRun }: {
         </div>
 
         {/* Right column: one compact card per run; hovering previews that answer on the board */}
-        <div className="grid content-start gap-1.5 md:grid-cols-2">
+        <div className="grid content-start gap-1 md:grid-cols-2">
           {task.results.map((result) => (
             <AttemptCard
               key={result.run}
