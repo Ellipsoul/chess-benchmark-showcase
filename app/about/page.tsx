@@ -12,7 +12,7 @@ export default function AboutPage() {
       <h2 className="mt-8 text-lg font-semibold">What ChessQA measures</h2>
       <p className="mt-2 text-stone-700 dark:text-stone-300">
         ChessQA is a 3,500-item benchmark from CSSLab at the University of Toronto
-        (<a className="underline" href="https://arxiv.org/abs/2510.23948">arXiv:2510.23948</a>) that probes
+        (<a className="underline" href="https://arxiv.org/abs/2510.23948" target="_blank" rel="noreferrer">arXiv:2510.23948</a>) that probes
         LLM chess understanding across five categories of ascending abstraction:
         <strong> Structural</strong> (can the model read a board at all — piece placement, legal moves,
         checks), <strong>Motifs</strong> (recognizing pins, forks, skewers, batteries),
@@ -67,9 +67,9 @@ export default function AboutPage() {
       <h2 className="mt-8 text-lg font-semibold">Attribution</h2>
       <p className="mt-2 text-stone-700 dark:text-stone-300">
         The ChessQA benchmark is by CSSLab, University of Toronto —
-        upstream at <a className="underline" href="https://github.com/CSSLab/chessqa-benchmark">github.com/CSSLab/chessqa-benchmark</a> (MIT
+        upstream at <a className="underline" href="https://github.com/CSSLab/chessqa-benchmark" target="_blank" rel="noreferrer">github.com/CSSLab/chessqa-benchmark</a> (MIT
         license). Our harness fork, results, and the exporter that produced this site&apos;s data live
-        at <a className="underline" href="https://github.com/Ellipsoul/chessqa-benchmark">github.com/Ellipsoul/chessqa-benchmark</a>.
+        at <a className="underline" href="https://github.com/Ellipsoul/chessqa-benchmark" target="_blank" rel="noreferrer">github.com/Ellipsoul/chessqa-benchmark</a>.
         All costs shown are real measured API spend from the runs, as reported by the gateway per call.
       </p>
     </main>

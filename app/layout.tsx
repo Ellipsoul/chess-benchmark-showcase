@@ -72,9 +72,10 @@ export default function RootLayout({
         </header>
         <div className="flex-1">{children}</div>
         <footer className="mt-16 border-t py-6 text-center text-xs text-muted-foreground">
-          Benchmark: <a className="underline" href="https://github.com/CSSLab/chessqa-benchmark">ChessQA</a> by CSSLab,
-          University of Toronto (<a className="underline" href="https://arxiv.org/abs/2510.23948">arXiv:2510.23948</a>, MIT).
-          Harness &amp; results: <a className="underline" href="https://github.com/Ellipsoul/chessqa-benchmark">Ellipsoul/chessqa-benchmark</a>.
+          Benchmark: <a className="underline" href="https://github.com/CSSLab/chessqa-benchmark" target="_blank" rel="noreferrer">ChessQA</a> by CSSLab,
+          University of Toronto (<a className="underline" href="https://arxiv.org/abs/2510.23948" target="_blank" rel="noreferrer">arXiv:2510.23948</a>, MIT).
+          Harness &amp; results: <a className="underline" href="https://github.com/Ellipsoul/chessqa-benchmark" target="_blank" rel="noreferrer">Ellipsoul/chessqa-benchmark</a>.
+          This site: <a className="underline" href="https://github.com/Ellipsoul/chess-benchmark-showcase" target="_blank" rel="noreferrer">Ellipsoul/chess-benchmark-showcase</a>.
           Costs shown are real measured API spend.
         </footer>
       </body>

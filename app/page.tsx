@@ -18,8 +18,9 @@ export default function Home() {
       <h1 className="text-3xl font-semibold">ChessQA Explorer</h1>
       <p className="mt-3 max-w-3xl text-foreground/80">
         Sixteen frontier-model configurations, fifty chess questions, every answer and every unedited thought
-        stream. Built on the <a className="underline" href="https://arxiv.org/abs/2510.23948">ChessQA benchmark</a> by
+        stream. Built on the <a className="underline" href="https://arxiv.org/abs/2510.23948" target="_blank" rel="noreferrer">ChessQA benchmark</a> by
         CSSLab, University of Toronto. A browser for model behavior, not a leaderboard — counts, never percentages.
+        This site is <a className="underline" href="https://github.com/Ellipsoul/chess-benchmark-showcase" target="_blank" rel="noreferrer">open source</a>.
       </p>
       <h2 className="mt-8 text-xl font-semibold">Every attempt at a glance</h2>
       <p className="mb-3 mt-1 text-sm text-muted-foreground">
