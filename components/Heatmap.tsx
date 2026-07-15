@@ -10,6 +10,8 @@ const PREFIX_RE = /^(structural|motifs|short_tactics|position_judgement|semantic
 // The table is fluid (fixed layout, aspect-square cells) so a laptop viewport fits all
 // 50 columns without scrolling; below the min-width the container scrolls instead.
 export function Heatmap({ index }: { index: IndexData }) {
+  const sortedRuns = [...index.runs].sort((a, b) => b.n_correct - a.n_correct);
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[880px] table-fixed border-separate border-spacing-px rounded-lg bg-stone-800 p-1.5">
@@ -35,7 +37,7 @@ export function Heatmap({ index }: { index: IndexData }) {
           </tr>
         </thead>
         <tbody>
-          {index.runs.map((run) => (
+          {sortedRuns.map((run) => (
             <tr key={run.slug}>
               <th className="truncate pr-3 text-left text-[13px] font-normal text-stone-100" title={run.display_name}>
                 {run.display_name}
