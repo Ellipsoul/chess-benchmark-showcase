@@ -74,6 +74,11 @@ per-task files fetched lazily on first open or during browser idle time.
 
 ## Development
 
+Contributor and agent guidance lives in [`AGENTS.md`](AGENTS.md). The short
+[`docs/README.md`](docs/README.md) maps this frontend to the durable research, status,
+and exporter-contract documentation in the sibling benchmark repository. `CLAUDE.md` is
+retained as the Claude Code entry point and delegates to the same shared guidance.
+
 ```bash
 npm install
 npm run dev     # http://localhost:3000
